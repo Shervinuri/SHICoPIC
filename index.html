@@ -507,29 +507,45 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
 
     async function enhancePromptWithAI(userPrompt) {
+        // This function now uses the Gemini API for more reliable prompt enhancement.
         try {
-            const chatHistory = [
-                { role: 'system', content: SYSTEM_PROMPT },
-                { role: 'user', content: `Enhance this prompt: \"${userPrompt}\"` }
-            ];
-            const apiUrl = 'https://text.pollinations.ai/openai';
+            const apiKey = ""; // The environment will handle the API key.
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
+            const payload = {
+                contents: [{
+                    parts: [{ text: `Enhance this prompt for a text-to-image model: \"${userPrompt}\"` }]
+                }],
+                systemInstruction: {
+                    parts: [{ text: SYSTEM_PROMPT }]
+                },
+            };
+
             const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    model: 'openai',
-                    messages: chatHistory
-                })
+                body: JSON.stringify(payload)
             });
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const data = await response.json();
-            const assistantResponse = data.choices[0].message.content;
-            return assistantResponse.trim();
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const result = await response.json();
+            const candidate = result.candidates?.[0];
+
+            if (candidate && candidate.content?.parts?.[0]?.text) {
+                return candidate.content.parts[0].text.trim();
+            } else {
+                console.error('Invalid response structure from Gemini API:', result);
+                return userPrompt; // Fallback to the original prompt
+            }
         } catch (error) {
-            console.error('Error enhancing prompt with AI:', error);
-            return userPrompt;
+            console.error('Error enhancing prompt with Gemini AI:', error);
+            return userPrompt; // Fallback to the original prompt on error
         }
     }
+
 
     const dom = {
         promptInput: document.getElementById('prompt'),
@@ -1042,5 +1058,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
-
-
