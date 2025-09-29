@@ -492,10 +492,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const styleTemplates = {
         cinema: " ,Shot in native IMAX 65mm and ARRI ALEXA LF with anamorphic lenses, color graded in HDR10/Dolby Vision, mastered in 4K DCI, utilizing dynamic lighting, practical effects, deep depth of field, authentic set design, golden hour cinematography, and multi-cam Steadicam, drone, and gimbal setups for immersive wide-to-intimate shots",
-        realistic: " ,real life intricate footage scene captured photo",
+        realistic: " ,real life intricate footage scene captured photo , natural light , 8k resolution , ultra details",
         photography: " ,hyperrealistic professional ultra intricately detailed photography",
         fantasy: " ,epic fantasy, vibrant colors, surreal composition, masterpiece",
-        anime: " ,anime art style, cel shading, vibrant colors, detailed character design, beautiful anime scenery, studio quality animation",
+        anime: " ,anime art style, cel shading, vibrant colors, detailed character design, beautiful anime scenery, pixar studio quality animation",
         artistic: " ,digital art, concept art, artistic illustration, creative composition, trending on artstation, masterpiece quality",
         portrait: " ,professional portrait photography, studio lighting, shallow depth of field, sharp focus on subject, elegant composition",
         landscape: " ,landscape photography, golden hour lighting, dramatic sky, natural beauty, wide angle composition, breathtaking scenery"
@@ -614,13 +614,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (dom.enhanceCheckbox.checked) {
-                card.querySelector('#loading-text-card').textContent = 'SHΞN™ core is upgrading...';
+                card.querySelector('#loading-text-card').textContent = 'SHΞN™core is tunning prompt...';
                 finalPrompt = await enhancePromptWithAI(promptForProcessing);
             } else {
                 finalPrompt = promptForProcessing;
             }
             
-            card.querySelector('#loading-text-card').textContent = 'Finalizing request...';
+            card.querySelector('#loading-text-card').textContent = 'Finalizing over load request...';
 
             const model = encodeURIComponent(dom.modelSelect.value || 'flux');
             const width = Math.max(512, Math.min(2048, parseInt(dom.widthInput.value) || 1024));
