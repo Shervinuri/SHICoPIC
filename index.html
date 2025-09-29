@@ -40,7 +40,7 @@
 
   /* شیشه‌ای اما خوانا — شفافیت کمترِ مخرب */
   .glass {
-    background: rgba(255, 255, 255, 0.04);
+    background: rgba(255, 255, 255, 0.02); /* شفاف‌تر شد */
     backdrop-filter: blur(10px);
     border: none;
     opacity: 0.95; /* بالا برای خوانایی */
@@ -76,7 +76,7 @@
   .generate-btn {
     position: relative;
     overflow: hidden;
-    background: rgba(128, 128, 128, 0.14);
+    background: rgba(128, 128, 128, 0.08); /* شفاف‌تر شد */
     color: transparent; /* متن با گرادیانت نمایش داده می‌شود */
     box-shadow:
       0 4px 8px rgba(0, 0, 0, 0.23),
@@ -128,6 +128,8 @@
     padding-top: 100px;
     padding-bottom: 220px; 
     min-height: 100vh;
+    overflow-y: auto; /* Enable scrolling for the main content */
+    height: 100vh;
   }
 
   .arched-header {
@@ -331,15 +333,20 @@
   .thumbnail-item:hover { transform: scale(1.05); border-color: rgba(0,191,255,0.18); }
   .thumbnail-item.active { border-color: var(--blue-electric); transform: scale(1.08); }
   
-  /* خوانایی placeholder/متن: جهت خودکار و رفتار یونی‌کد */
+  /* خوانایی placeholder/متن: جهت خودکار و رفتار یونیکد */
   #prompt {
     unicode-bidi: plaintext;
     direction: auto;
     text-align: center; /* Center placeholder */
     line-height: 1.45;
     font-size: 15px;
-    caret-color: var(--blue-electric);
+    caret-color: transparent; /* Hide caret by default */
     resize: none;
+  }
+
+  #prompt:focus {
+    text-align: start; /* Align text to the start on focus */
+    caret-color: var(--blue-electric); /* Show caret on focus */
   }
 
   #prompt:not(:placeholder-shown) {
@@ -396,7 +403,7 @@
 <!-- Fixed Footer with Prompt and Generate Button -->
 <div class="fixed-footer">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-5">
-    <div class="flex flex-col sm:flex-row gap-3 relative">
+    <div class="flex flex-col sm:flex-row gap-3 relative items-center sm:justify-center">
       <div class="prompt-box-container">
         <!-- دقت: dir="auto" و enterkeyhint="newline" -->
         <textarea id="prompt" dir="auto" enterkeyhint="newline" inputmode="text" spellcheck="true" autocomplete="off" autocapitalize="off" rows="4" class="w-full glass glass-border prompt-box rounded-xl p-4 text-base placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--blue-electric)]" placeholder="Write or Say your vision...!"></textarea>
@@ -411,7 +418,7 @@
         <!-- send button (hidden by default; ظاهر می‌شود وقتی کیبورد موبایل بالا آمد) -->
         <div id="sendBtn" class="send-btn hidden" title="Send">☬</div>
       </div>
-      <button id="generateBtn" class="flex items-center justify-center gap-2 h-auto sm:h-full px-6 py-3 font-semibold generate-btn transition-all shadow-lg disabled:opacity-50 disabled:cursor-wait relative" style="border-bottom-left-radius: 60% 40px; border-bottom-right-radius: 60% 40px;">
+      <button id="generateBtn" class="w-full sm:w-auto flex items-center justify-center gap-2 h-auto sm:h-full px-6 py-3 font-semibold generate-btn transition-all shadow-lg disabled:opacity-50 disabled:cursor-wait relative" style="border-bottom-left-radius: 60% 40px; border-bottom-right-radius: 60% 40px;">
           <span class="animated-text">☬</span>
           <span class="animated-text">GΞИΞRATΞ</span>
       </button>
@@ -420,7 +427,7 @@
     <!-- Footer Text (کوچک‌تر) -->
     <div class="text-center py-4 mt-4 border-t border-gray-800">
       <a href="https://t.me/shervini" target="_blank" rel="noopener" class="footer-gradient font-semibold">
-        ••• ᴇxᴄʟᴜꜱɪᴠᴇ ☬SHΞN™ ᴍᴀᴅᴇ •••
+        ••• ᴇxᴄʟᴜsɪᴠᴇ ☬SHΞN™ ᴍᴀᴅᴇ •••
       </a>
     </div>
   </div>
@@ -487,11 +494,11 @@
       </div>
       <div class="flex items-center justify-between">
         <label for="width">Width</label>
-        <input id="width" type="number" value="2048" class="w-48 glass glass-border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--blue-electric)]">
+        <input id="width" type="number" value="1024" class="w-48 glass glass-border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--blue-electric)]">
       </div>
       <div class="flex items-center justify-between">
         <label for="height">Height</label>
-        <input id="height" type="number" value="2048" class="w-48 glass glass-border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--blue-electric)]">
+        <input id="height" type="number" value="1024" class="w-48 glass glass-border rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--blue-electric)]">
       </div>
       
       <div class="flex items-center justify-between">
@@ -607,9 +614,10 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const chatHistory = [
                 { role: 'system', content: SYSTEM_PROMPT },
-                { role: 'user', content: `Enhance this prompt: "${userPrompt}"` }
+                { role: 'user', content: `Enhance this prompt: \"${userPrompt}\"` }
             ];
-            const response = await fetch('https://text.pollinations.ai/openai', {
+            const apiUrl = 'https://text.pollinations.ai/openai';
+            const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -695,8 +703,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const card = document.createElement('div');
         card.className = 'image-card relative glass glass-border rounded-lg aspect-square flex items-center justify-center';
-        card.innerHTML = `<div class="flex flex-col items-center gap-2 text-gray-400"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[var(--blue-electric)]"></div><span class="text-xs">Initializing...</span></div>`;
+        card.innerHTML = `<div class="flex flex-col items-center gap-4 text-gray-400">
+                          <img src="https://raw.githubusercontent.com/Shervinuri/Shervinuri.github.io/refs/heads/main/1712259501956.png" alt="Loading..." class="w-16 h-16 rounded-full logo-spin">
+                          <span class="text-sm font-semibold tracking-wider" id="loading-text-card">Initializing...</span>
+                          </div>`;
         dom.imagesContainer.insertBefore(card, dom.imagesContainer.firstChild);
+        
+        // Scroll to top to see the new card
+        document.querySelector('.main-content').scrollTo({ top: 0, behavior: 'smooth' });
 
         try {
             let promptForProcessing = rawPrompt;
@@ -707,13 +721,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             if (dom.enhanceCheckbox.checked) {
-                card.querySelector('span').textContent = 'SHΞN™ core is upgrading your prompt...';
+                card.querySelector('#loading-text-card').textContent = 'SHΞN™ core is upgrading...';
                 finalPrompt = await enhancePromptWithAI(promptForProcessing);
             } else {
                 finalPrompt = promptForProcessing;
             }
             
-            card.querySelector('span').textContent = 'Finalize your request...';
+            card.querySelector('#loading-text-card').textContent = 'Finalizing request...';
             console.log("Final Prompt Sent to Image API:", finalPrompt);
 
             const model = encodeURIComponent(dom.modelSelect.value || 'flux');
@@ -724,9 +738,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 : (parseInt(dom.seedInput.value) || 42);
             
             const encodedPrompt = encodeURIComponent(finalPrompt);
-            const url = `${baseUrl}/prompt/${encodedPrompt}?model=${model}&width=${width}&height=${height}&seed=${seed}&nologo=true&safe=false`;
+            const apiUrl = `${baseUrl}/prompt/${encodedPrompt}?model=${model}&width=${width}&height=${height}&seed=${seed}&nologo=true&safe=false`;
             
-            const res = await fetch(url);
+            const res = await fetch(apiUrl);
 
             if (!res.ok) {
                 const errorText = await res.text();
@@ -768,12 +782,12 @@ document.addEventListener('DOMContentLoaded', () => {
             enhance: dom.enhanceCheckbox.checked,
             selectedStyle: appState.selectedStyle
         };
-        localStorage.setItem('shenerator_3d_settings_final', JSON.stringify(settings));
+        localStorage.setItem('shenerator_3d_settings_v3', JSON.stringify(settings));
     };
 
     const loadSettings = () => {
         try {
-            const saved = JSON.parse(localStorage.getItem('shenerator_3d_settings_final'));
+            const saved = JSON.parse(localStorage.getItem('shenerator_3d_settings_v3'));
             if (saved) {
                 dom.modelSelect.value = saved.model || 'flux';
                 dom.widthInput.value = saved.width || 1024;
@@ -827,7 +841,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const previewCanvas = document.createElement('canvas');
             const previewCtx = previewCanvas.getContext('2d');
-            const maxPreviewSize = Math.min(window.innerWidth * 0.9, 280);
+            const maxPreviewSize = Math.min(window.innerWidth * 0.9, 512); // کیفیت پریویو افزایش یافت
             const aspectRatio = canvas.width / canvas.height;
             
             if (aspectRatio > 1) {
