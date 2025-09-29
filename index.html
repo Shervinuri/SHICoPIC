@@ -506,27 +506,41 @@ document.addEventListener('DOMContentLoaded', () => {
     YOUR TASK: transform the user's short prompt into an expanded, technical prompt.
     `;
 
-    async function enhancePromptWithAI(userPrompt) {
+    async function enhancePromptWithGemini(userPrompt) {
+        const apiKey = "AIzaSyAm0ilAgYOkdGXwiLO8rIVSz_UJvyh5pVs"; // Canvas will provide the key
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+        
+        const payload = {
+            contents: [{ parts: [{ text: `Enhance this prompt: \"${userPrompt}\"` }] }],
+            systemInstruction: {
+                parts: [{ text: SYSTEM_PROMPT }]
+            },
+        };
+
         try {
-            const chatHistory = [
-                { role: 'system', content: SYSTEM_PROMPT },
-                { role: 'user', content: `Enhance this prompt: "${userPrompt}"` }
-            ];
-            const response = await fetch('https://text.pollinations.ai/openai', {
+            const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    model: 'openai',
-                    messages: chatHistory
-                })
+                body: JSON.stringify(payload)
             });
-            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-            const data = await response.json();
-            const assistantResponse = data.choices[0].message.content;
-            return assistantResponse.trim();
+
+            if (!response.ok) {
+                const errorBody = await response.text();
+                throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
+            }
+
+            const result = await response.json();
+            const candidate = result.candidates?.[0];
+
+            if (candidate && candidate.content?.parts?.[0]?.text) {
+                return candidate.content.parts[0].text.trim();
+            } else {
+                console.warn("Gemini response was empty or malformed.", result);
+                return userPrompt; // Fallback
+            }
         } catch (error) {
-            console.error('Error enhancing prompt with AI:', error);
-            return userPrompt;
+            console.error('Error enhancing prompt with Gemini:', error);
+            return userPrompt; // Fallback
         }
     }
 
@@ -1041,4 +1055,3 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
-
