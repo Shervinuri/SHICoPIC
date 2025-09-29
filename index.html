@@ -366,8 +366,90 @@
   height: auto;
   object-fit: contain;
 }
-
 </style>
+
+<!-- START: New styles added by AI Assistant -->
+<style>
+  :root {
+    /* Configurable Variables */
+    --loading-rotate-speed: 1.2s;
+    --flicker-speed: 2.4s;
+    --flicker-delay: 0.28s;
+    --footer-height: 48px;
+    --footer-padding-x: 1rem;
+    --footer-text-color: #ffffff;
+    
+    /* Fallback gradient for footer */
+    --title-grad-from: #7b2cff;
+    --title-grad-to: #00e5ff;
+    --footer-fallback-gradient: linear-gradient(90deg, var(--title-grad-from), var(--title-grad-to));
+    
+    /* This variable will be dynamically set by JavaScript */
+    --title-gradient: var(--footer-fallback-gradient);
+  }
+
+  /* Generated Item Scroll Margin */
+  .image-card { /* Target existing .image-card as .generated-item */
+    scroll-margin-top: 12vh;
+  }
+
+  /* Site Footer Styling */
+  #site-footer {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--footer-height);
+    padding: 0 var(--footer-padding-x);
+    color: var(--footer-text-color);
+    font-weight: 600;
+    font-size: 0.875rem;
+    background-image: var(--title-gradient);
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  /* Loading Indicator Styling */
+  .loading-indicator {
+    display: none; /* Hidden by default */
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 0.5rem 1rem;
+    margin: 1rem auto;
+    color: #a0aec0; /* text-gray-400 */
+    font-size: 0.875rem;
+    font-weight: 500;
+  }
+
+  body.is-generating .loading-indicator {
+    display: inline-flex; /* Shown when body has .is-generating class */
+  }
+
+  .loading-icon {
+    width: 2rem; /* 32px */
+    height: 2rem; /* 32px */
+    animation: 
+      rotate360 var(--loading-rotate-speed) linear infinite,
+      flicker var(--flicker-speed) steps(10, end) infinite;
+    animation-delay: 0s, var(--flicker-delay);
+  }
+
+  /* Keyframes for Animations */
+  @keyframes rotate360 {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes flicker {
+    0%, 100% { opacity: 1; }
+    20% { opacity: 0.95; }
+    40% { opacity: 1; }
+    50% { opacity: 0.9; }
+    60% { opacity: 1; }
+    85% { opacity: 0.98; }
+  }
+</style>
+<!-- END: New styles added by AI Assistant -->
+
 </head>
 <body style="background-attachment:fixed; overflow-y:hidden;" class="text-gray-300 font-['Inter'] antialiased relative overflow-x-hidden">
 
@@ -376,7 +458,7 @@
 
 <div class="header-container">
   <header class="arched-header glass glass-border border-t border-x relative header-glow">
-    <div class="font-brand text-2xl sm:text-3xl font-bold tracking-wider">
+    <div data-title-gradient class="font-brand text-2xl sm:text-3xl font-bold tracking-wider">
       <span class="animated-text">SHICOPIC</span>
     </div>
   </header>
@@ -397,7 +479,18 @@
 </div>
 
 <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-5 main-content" style="position: relative; z-index: 12;">
-  <div id="images" class="images-container"></div>
+  <div id="images" class="images-container" data-generated-list></div>
+  
+  <!-- START: New elements added by AI Assistant -->
+  <!-- This container holds the loading indicator and serves as a conceptual placeholder -->
+  <div id="placeholder" data-placeholder class="w-full text-center">
+      <div class="loading-indicator">
+          <img src="https://raw.githubusercontent.com/Shervinuri/Shervinuri.github.io/refs/heads/main/1712259501956.png" alt="Generating..." class="loading-icon" onerror="this.onerror=null;this.src='https://placehold.co/48x48/000000/ffffff?text=S';">
+          <span>Generating…</span>
+      </div>
+  </div>
+  <!-- END: New elements added by AI Assistant -->
+
 </main>
 
 <!-- Fixed Footer with Prompt and Generate Button -->
@@ -432,6 +525,11 @@
     </div>
   </div>
 </div>
+
+<!-- START: New footer added by AI Assistant -->
+<footer id="site-footer">Exclusive SHΞN made</footer>
+<!-- END: New footer added by AI Assistant -->
+
 
 <!-- Slideshow Overlay -->
 <div id="slideshowOverlay" class="slideshow-overlay">
@@ -699,18 +797,16 @@ document.addEventListener('DOMContentLoaded', () => {
         dom.generateBtn.disabled = true;
         dom.generateBtn.setAttribute('aria-busy','true');
 
-        /* دیگر شفافیتِ prompt را تغییر نمی‌دهیم تا متن همیشه خوانا بماند */
-
         const card = document.createElement('div');
         card.className = 'image-card relative glass glass-border rounded-lg aspect-square flex items-center justify-center';
         card.innerHTML = `<div class="flex flex-col items-center gap-4 text-gray-400">
                           <img src="https://raw.githubusercontent.com/Shervinuri/Shervinuri.github.io/refs/heads/main/1712259501956.png" alt="Loading..." class="w-16 h-16 rounded-full logo-spin">
                           <span class="text-sm font-semibold tracking-wider" id="loading-text-card">Initializing...</span>
                           </div>`;
-        dom.imagesContainer.insertBefore(card, dom.imagesContainer.firstChild);
+        dom.imagesContainer.appendChild(card); // Changed from insertBefore to appendChild to work with column-reverse correctly
         
-        // Scroll to top to see the new card
-        document.querySelector('.main-content').scrollTo({ top: 0, behavior: 'smooth' });
+        // Dispatch custom event for the new scroll logic
+        window.dispatchEvent(new CustomEvent('generation:update', { detail: { node: card } }));
 
         try {
             let promptForProcessing = rawPrompt;
@@ -811,7 +907,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const temp = document.createElement('div');
         temp.className = 'image-card relative glass glass-border rounded-lg aspect-square flex items-center justify-center text-gray-400 text-sm';
         temp.innerHTML = message;
-        dom.imagesContainer.insertBefore(temp, dom.imagesContainer.firstChild);
+        dom.imagesContainer.appendChild(temp);
         setTimeout(() => temp.remove(), 1200);
     }
 
@@ -1226,5 +1322,125 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 </script>
+
+<!-- START: New script added by shen Assistant -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    // --- 1. Footer Gradient Sync ---
+    const initFooterGradient = () => {
+      try {
+        // Selector for the element whose gradient we want to copy
+        const titleElement = document.querySelector('[data-title-gradient] .animated-text');
+        const footerElement = document.getElementById('site-footer');
+        if (!titleElement || !footerElement) return;
+
+        const computedStyle = window.getComputedStyle(titleElement);
+        const titleGradient = computedStyle.backgroundImage;
+
+        // Check if it's a valid gradient and not 'none' or empty
+        if (titleGradient && titleGradient.includes('gradient')) {
+          // Use a CSS variable to apply the gradient for easy management
+          document.documentElement.style.setProperty('--title-gradient', titleGradient);
+        }
+      } catch (e) {
+        console.error('Could not sync footer gradient:', e);
+        // Fallback is already defined in CSS, so no action needed here
+      }
+    };
+    initFooterGradient();
+
+
+    // --- 2. Loading Indicator Logic ---
+    const showLoading = () => document.body.classList.add('is-generating');
+    const hideLoading = () => document.body.classList.remove('is-generating');
+
+    // Listen for custom events if the app dispatches them
+    window.addEventListener('generation:start', showLoading);
+    window.addEventListener('generation:finish', hideLoading);
+    
+    // Create a proxy to hook into the existing app without modifying its code
+    const generateBtn = document.getElementById('generateBtn');
+    if (generateBtn) {
+        // This listener acts as a proxy to detect the start of generation
+        generateBtn.addEventListener('click', () => {
+           const promptInput = document.getElementById('prompt');
+           if (promptInput && promptInput.value.trim()){
+              // If the button is clicked and there's a prompt, we assume generation will start
+              window.dispatchEvent(new Event('generation:start'));
+           }
+        });
+
+        // Use a MutationObserver to detect when generation is finished
+        // This is a robust way to react to the button being re-enabled
+        const finishObserver = new MutationObserver((mutationsList) => {
+            for(const mutation of mutationsList) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'disabled') {
+                    const btn = mutation.target;
+                    // When 'disabled' attribute is removed, generation is complete
+                    if (!btn.disabled) {
+                        window.dispatchEvent(new Event('generation:finish'));
+                    }
+                }
+            }
+        });
+        finishObserver.observe(generateBtn, { attributes: true });
+    }
+
+
+    // --- 3. Auto-Scroll to New Item ---
+    const placeAndReveal = (node) => {
+      if (!node || typeof node.scrollIntoView !== 'function') return;
+      try {
+        // Scrolls the new element into the center of the viewport smoothly
+        node.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch (e) {
+        console.error('Failed to scroll to element:', e);
+      }
+    };
+
+    // Listen for a custom event for explicit programmatic control
+    window.addEventListener('generation:update', (e) => {
+      if (e.detail && e.detail.node) {
+        placeAndReveal(e.detail.node);
+      }
+    });
+
+    // Use MutationObserver as a fallback for apps that don't dispatch the custom 'generation:update' event
+    const initMutationObserver = () => {
+      try {
+        const container = document.querySelector('[data-generated-list]');
+        if (!container) return;
+
+        const observer = new MutationObserver((mutationsList) => {
+          for (const mutation of mutationsList) {
+            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+              const lastAddedItem = Array.from(mutation.addedNodes).find(node => 
+                node.nodeType === 1 && node.classList.contains('image-card')
+              );
+              
+              if (lastAddedItem) {
+                // We don't call placeAndReveal here because the original script already
+                // dispatches 'generation:update' now, which is the preferred method.
+                // This observer remains as a potential fallback.
+              }
+            }
+          }
+        });
+
+        observer.observe(container, { childList: true });
+      } catch (e) {
+        console.error('Could not initialize MutationObserver:', e);
+      }
+    };
+    initMutationObserver();
+
+  } catch (err) {
+    console.error("An error occurred in the new features script:", err);
+  }
+});
+</script>
+<!-- END: New script added by Shen core -->
+
 </body>
 </html>
