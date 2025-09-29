@@ -10,14 +10,13 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Orbitron:wght@700&display=swap" rel="stylesheet" />
 <style>
   :root {
-    /* جدید — تم موجی آبی / بنفش / نقره‌ای */
+    /* تم اصلی */
     --blue-electric: #00bfff;
     --purple-glow: #8b5cf6;
     --silver: #c0c0c0;
     --primary-color: #00bfff;
     --secondary-color: #8b5cf6;
     --gradient-primary: linear-gradient(135deg, #00bfff, #8b5cf6, #c0c0c0);
-    --gradient-secondary: linear-gradient(135deg, #00bfff, #8b5cf6, #c0c0c0);
     --dark-bg: #0A0A0A;
     --dark-card: #141414;
     --dark-border: #262626;
@@ -25,6 +24,8 @@
 
   body {
     background: linear-gradient(135deg, #05060a 0%, #0f0920 50%, #130723 100%);
+    background-attachment:fixed; 
+    overflow-y:hidden;
   }
   .font-brand { font-family: 'Orbitron', sans-serif; }
   ::-webkit-scrollbar { width: 6px; }
@@ -38,27 +39,36 @@
   }
   .modal-fade-in { animation: fadeIn 0.2s ease-out forwards; }
 
-  /* شیشه‌ای اما خوانا — شفافیت کمترِ مخرب */
   .glass {
-    background: rgba(255, 255, 255, 0.02); /* شفاف‌تر شد */
+    background: rgba(255, 255, 255, 0.02);
     backdrop-filter: blur(10px);
     border: none;
-    opacity: 0.95; /* بالا برای خوانایی */
+    opacity: 0.95;
   }
   .glass-border {
     border: 0px solid rgba(38, 38, 38, 0.5);
   }
 
   @keyframes colorWave {
-    0% { --primary-color: #00bfff; --secondary-color: #8b5cf6; }
+    0%, 100% { --primary-color: #00bfff; --secondary-color: #8b5cf6; }
     25% { --primary-color: #8b5cf6; --secondary-color: #c0c0c0; }
     50% { --primary-color: #c0c0c0; --secondary-color: #00bfff; }
     75% { --primary-color: #00bfff; --secondary-color: #8b5cf6; }
-    100% { --primary-color: #00bfff; --secondary-color: #8b5cf6; }
   }
   :root { animation: colorWave 12s ease-in-out infinite; }
 
-  .arched-header { border-color: rgba(139,92,246,0.25); }
+  .arched-header {
+    width: 95%;
+    max-width: 1024px;
+    height: 40px;
+    border-top-left-radius: 10% 40px;
+    border-top-right-radius: 10% 40px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-color: rgba(139,92,246,0.25);
+  }
   .arched-header::after {
     background: radial-gradient(ellipse at 50% 150%, rgba(139,92,246,0.22) 0%, rgba(139,92,246,0) 70%);
     filter: blur(15px);
@@ -72,12 +82,11 @@
       0 0 20px rgba(139,92,246,0.07);
   }
 
-  /* دکمه Generate با متن گرادیانت مثل هدر */
   .generate-btn {
     position: relative;
     overflow: hidden;
-    background: rgba(128, 128, 128, 0.08); /* شفاف‌تر شد */
-    color: transparent; /* متن با گرادیانت نمایش داده می‌شود */
+    background: rgba(128, 128, 128, 0.08);
+    color: transparent;
     box-shadow:
       0 4px 8px rgba(0, 0, 0, 0.23),
       inset 0 1px 0 rgba(255, 255, 255, 0.03),
@@ -101,10 +110,7 @@
   }
 
   .header-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
+    position: fixed; top: 0; left: 0; right: 0;
     z-index: 20;
     display: flex;
     flex-direction: column;
@@ -113,14 +119,10 @@
   }
 
   .fixed-footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
+    position: fixed; bottom: 0; left: 0; right: 0;
     z-index: 20;
     padding: 0.8rem;
     transition: transform 0.18s ease;
-    /* برای جلوگیری از اینکه کیبورد تغییرات بزرگی بوجود آورد */
     will-change: transform;
   }
 
@@ -128,51 +130,42 @@
     padding-top: 100px;
     padding-bottom: 220px; 
     min-height: 100vh;
-    overflow-y: auto; /* Enable scrolling for the main content */
+    overflow-y: auto;
     height: 100vh;
   }
 
-  .arched-header {
-    width: 95%;
-    max-width: 1024px;
-    height: 40px;
-    border-top-left-radius: 10% 40px;
-    border-top-right-radius: 10% 40px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .header-glow {
-    position: relative;
-    overflow: hidden;
-  }
+  .header-glow { position: relative; overflow: hidden; }
   .header-glow::before {
     content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
+    position: absolute; top: 0; left: -100%;
+    width: 100%; height: 100%;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
     animation: sweep 4s ease-in-out infinite;
   }
-  @keyframes sweep {
-    0% { left: -100%; }
-    50% { left: 100%; }
-    100% { left: -100%; }
-  }
+  @keyframes sweep { 0% { left: -100%; } 50% { left: 100%; } 100% { left: -100%; } }
+  
   @keyframes spin-y {
     from { transform: rotateY(0deg); }
     to { transform: rotateY(360deg); }
   }
   .logo-spin { animation: spin-y 8s linear infinite; transform-style: preserve-3d; }
 
-  @keyframes gradient-glow {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+  /* START: انیمیشن‌های جدید برای لودینگ کارت */
+  @keyframes spin-y-fast {
+    from { transform: rotateY(0deg); }
+    to { transform: rotateY(360deg); }
   }
+  @keyframes flicker {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.2; }
+  }
+  .card-loading-icon {
+    animation: spin-y-fast 1s linear infinite, flicker 1.5s ease-in-out infinite;
+    transform-style: preserve-3d;
+  }
+  /* END: انیمیشن‌های جدید */
+
+  @keyframes gradient-glow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
   #prompt::placeholder {
     color: #9CA3AF;
     background-image: var(--gradient-primary);
@@ -189,31 +182,19 @@
     color: transparent;
     animation: gradient-move 3s ease-in-out infinite;
   }
-  @keyframes gradient-move {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
+  @keyframes gradient-move { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-  .divider-glow {
-    position: relative;
-    height: 2px;
-    background: rgba(255, 255, 255, 0.04);
-  }
+  .divider-glow { position: relative; height: 2px; background: rgba(255, 255, 255, 0.04); }
   .divider-glow::after {
     content: '';
-    position: absolute;
-    top: 0;
-    left: 50%;
-    width: 40%;
-    height: 100%;
+    position: absolute; top: 0; left: 50%;
+    width: 40%; height: 100%;
     background: var(--gradient-primary);
     transform: translateX(-50%);
     animation: pulse 2s ease-in-out infinite;
   }
   @keyframes pulse { 0%,100%{opacity:0.25;}50%{opacity:0.8;} }
 
-  .prompt-box-container { position: relative; width: 100%; }
   .prompt-box {
     box-shadow:
       inset 0 2px 4px rgba(255, 255, 255, 0.03),
@@ -223,39 +204,26 @@
     transition: box-shadow 0.3s ease;
     position: relative;
     padding-right: 3rem;
-    opacity: 1; /* خواناتر */
+    opacity: 1;
     background: rgba(255,255,255,0.03);
   }
 
-  /* میکروفون و دکمهٔ ارسال (یکسان) */
   .mic-btn, .send-btn {
-    position: absolute;
-    bottom: 12px;
-    right: 12px;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
+    position: absolute; bottom: 12px; right: 12px;
+    width: 34px; height: 34px; border-radius: 50%;
     background: linear-gradient(145deg, rgba(0,191,255,0.12), rgba(139,92,246,0.08));
     border: 1px solid rgba(0,191,255,0.22);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 12;
-    transition: all 0.18s ease;
-    font-size: 15px;
-    color: var(--blue-electric);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; z-index: 12; transition: all 0.18s ease;
+    font-size: 15px; color: var(--blue-electric);
   }
   .mic-btn:hover, .send-btn:hover { transform: translateY(-2px); background: rgba(0,191,255,0.14); }
   .mic-btn svg { width: 14px; height: 14px; stroke: var(--blue-electric); }
 
   .mic-btn.recording svg { stroke: #e3342f; }
   .mic-btn.recording::after {
-    content: '';
-    position: absolute;
-    width: 120%;
-    height: 120%;
-    border-radius: 50%;
+    content: ''; position: absolute;
+    width: 120%; height: 120%; border-radius: 50%;
     border: 1px solid rgba(227, 52, 47, 0.18);
     animation: pulse-red 1.5s infinite;
   }
@@ -269,44 +237,9 @@
     background: var(--gradient-primary);
     -webkit-background-clip: text;
     color: transparent;
-    font-size: 12px; /* کوچکتر شدن متن فوتر */
+    font-size: 12px;
     font-weight: 600;
   }
-
-  .vertical-label {
-    position: absolute;
-    left: 12px;
-    top: 50%;
-    transform: translateY(-50%) rotate(-90deg);
-    transform-origin: left top;
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 14px;
-    font-weight: bold;
-    color: var(--blue-electric);
-    opacity: 0.9;
-    text-shadow: 0 0 8px rgba(0,191,255,0.28);
-    pointer-events: none;
-    z-index: 10;
-    white-space: nowrap;
-  }
-
-  .vertical-line {
-    position: fixed;
-    left: 50%;
-    top: 100px;
-    width: 2px;
-    height: 30px;
-    background: rgba(38, 38, 38, 0.5);
-    transform: translateX(-50%);
-    z-index: 15;
-  }
-
-  #styleRoller { scrollbar-width: none; -ms-overflow-style: none; }
-  #styleRoller::-webkit-scrollbar { display: none; }
-  .style-item { transition: all 0.2s ease-out; opacity: 0.5; transform: scale(0.9); cursor: pointer; }
-  .style-item.is-active { opacity: 1; transform: scale(1); color: var(--blue-electric); }
 
   .images-container { display: flex; flex-direction: column-reverse; gap: 1rem; margin-bottom: 2rem; }
   .image-card { animation: slideInFromTop 0.5s ease-out forwards; opacity: 0; transform: translateY(-20px); cursor: pointer; max-height: 500px; overflow: hidden; }
@@ -315,166 +248,32 @@
   /* اسلایدشو */
   .slideshow-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(10px); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
   .slideshow-overlay.active { opacity: 1; visibility: visible; }
-
   .slideshow-container { position: relative; max-width: 90vw; max-height: 70vh; display: flex; align-items: center; justify-content: center; }
   .slideshow-image { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 12px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); }
-
   .slideshow-nav { position: absolute; top: 50%; transform: translateY(-50%); background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.06); border-radius: 50%; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; backdrop-filter: blur(8px); }
   .slideshow-nav:hover { transform: translateY(-50%) scale(1.05); }
-
   .slideshow-nav.prev { left: -70px; }
   .slideshow-nav.next { right: -70px; }
-
   .slideshow-close { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.06); border-radius: 50%; width: 40px; height: 40px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.3s ease; backdrop-filter: blur(8px); }
   .slideshow-close:hover { transform: scale(1.05); }
-
   .slideshow-thumbnails { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 10px; max-width: 90vw; overflow-x: auto; padding: 10px; background: rgba(0,0,0,0.26); border-radius: 25px; backdrop-filter: blur(8px); }
   .thumbnail-item { width: 60px; height: 60px; border-radius: 8px; cursor: pointer; transition: all 0.3s ease; border: 2px solid transparent; flex-shrink: 0; }
   .thumbnail-item:hover { transform: scale(1.05); border-color: rgba(0,191,255,0.18); }
   .thumbnail-item.active { border-color: var(--blue-electric); transform: scale(1.08); }
   
-  /* خوانایی placeholder/متن: جهت خودکار و رفتار یونیکد */
   #prompt {
-    unicode-bidi: plaintext;
-    direction: auto;
-    text-align: center; /* Center placeholder */
-    line-height: 1.45;
-    font-size: 15px;
-    caret-color: transparent; /* Hide caret by default */
-    resize: none;
+    unicode-bidi: plaintext; direction: auto;
+    text-align: center; line-height: 1.45;
+    font-size: 15px; caret-color: transparent; resize: none;
   }
-
-  #prompt:focus {
-    text-align: start; /* Align text to the start on focus */
-    caret-color: var(--blue-electric); /* Show caret on focus */
-  }
-
-  #prompt:not(:placeholder-shown) {
-    text-align: start; /* Align left/right once user types */
-  }
-
-  /* مخفی/نمایش دکمهٔ ارسال */
-  .send-btn.hidden { display: none; }
-
-.generated-image, .watermark {
-  image-rendering: auto;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
-.preview-canvas {
-  max-width: 100%;
-  height: auto;
-  object-fit: contain;
-}
-</style>
-
-<!-- START: New styles added by AI Assistant -->
-<style>
-  :root {
-    /* Configurable Variables */
-    --loading-rotate-speed: 0.8s;
-    --flicker-speed: 1s;
-    --flicker-delay: 0.5s;
-    --footer-height: 48px;
-    --footer-padding-x: 1rem;
-    --footer-text-color: #ffffff;
-    
-    /* Fallback gradient for footer */
-    --title-grad-from: #7b2cff;
-    --title-grad-to: #00e5ff;
-    --footer-fallback-gradient: linear-gradient(90deg, var(--title-grad-from), var(--title-grad-to));
-    
-    /* This variable will be dynamically set by JavaScript */
-    --title-gradient: var(--footer-fallback-gradient);
-  }
-
-  /* Generated Item Scroll Margin */
-  .image-card { /* Target existing .image-card as .generated-item */
-    scroll-margin-top: 12vh;
-  }
-
-  /* Site Footer Styling */
-  #site-footer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: var(--footer-height);
-    padding: 0 var(--footer-padding-x);
-    color: var(--footer-text-color);
-    font-weight: 600;
-    font-size: 0.875rem;
-    background-image: var(--title-gradient);
-    border-top: 1px solid rgba(255, 255, 255, 0.15);
-  }
-
-  /* Loading Indicator Styling */
-  .loading-indicator {
-    display: none; /* Hidden by default */
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    padding: 0.5rem 1rem;
-    margin: 1rem auto;
-    color: #a0aec0; /* text-gray-400 */
-    font-size: 0.875rem;
-    font-weight: 500;
-  }
-
-  body.is-generating .loading-indicator {
-    display: inline-flex; /* Shown when body has .is-generating class */
-  }
-
-  .loading-icon {
-    width: 2rem; /* 32px */
-    height: 2rem; /* 32px */
-    animation: 
-      rotate360 var(--loading-rotate-speed) linear infinite,
-      flicker var(--flicker-speed) steps(10, end) infinite;
-    animation-delay: 0s, var(--flicker-delay);
-  }
-
-  /* Keyframes for Animations */
-  @keyframes rotate360 {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
-
-  @keyframes flicker {
-    0%, 100% { opacity: 1; }
-    20% { opacity: 0.95; }
-    40% { opacity: 1; }
-    50% { opacity: 0.9; }
-    60% { opacity: 1; }
-    85% { opacity: 0.98; }
-  }
-
-<style>
-  #site-footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: 19; /* A layer below the prompt box */
-  }
-
-  /* Adjust the prompt box container to sit on top of the new footer */
-  .fixed-footer {
-    /* We move it up by the height of the new footer */
-    bottom: var(--footer-height, 48px);
-  }
-
-  /* Adjust main content padding to prevent the last image from being hidden */
-  .main-content {
-    /* Original padding was 220px, now we add the new footer's height */
-    padding-bottom: calc(220px + var(--footer-height, 48px));
-  }
+  #prompt:focus { text-align: start; caret-color: var(--blue-electric); }
+  #prompt:not(:placeholder-shown) { text-align: start; }
 </style>
 
 </head>
-<body style="background-attachment:fixed; overflow-y:hidden;" class="text-gray-300 font-['Inter'] antialiased relative overflow-x-hidden">
+<body class="text-gray-300 font-['Inter'] antialiased relative overflow-x-hidden">
 
 <canvas id="bgCanvas" class="absolute inset-0 -z-10"></canvas>
-<div class="vertical-line"></div>
 
 <div class="header-container">
   <header class="arched-header glass glass-border border-t border-x relative header-glow">
@@ -500,25 +299,13 @@
 
 <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-5 main-content" style="position: relative; z-index: 12;">
   <div id="images" class="images-container" data-generated-list></div>
-  
-  <!-- START: New elements added by AI Assistant -->
-  <!-- This container holds the loading indicator and serves as a conceptual placeholder -->
-  <div id="placeholder" data-placeholder class="w-full text-center">
-      <div class="loading-indicator">
-          <img src="https://raw.githubusercontent.com/Shervinuri/Shervinuri.github.io/refs/heads/main/1712259501956.png" alt="Generating..." class="loading-icon" onerror="this.onerror=null;this.src='https://placehold.co/48x48/000000/ffffff?text=S';">
-          <span>Generating…</span>
-      </div>
-  </div>
-  <!-- END: New elements added by AI Assistant -->
-
 </main>
 
 <!-- Fixed Footer with Prompt and Generate Button -->
 <div class="fixed-footer">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-5">
     <div class="flex flex-col sm:flex-row gap-3 relative items-center sm:justify-center">
-      <div class="prompt-box-container">
-        <!-- دقت: dir="auto" و enterkeyhint="newline" -->
+      <div class="relative w-full">
         <textarea id="prompt" dir="auto" enterkeyhint="newline" inputmode="text" spellcheck="true" autocomplete="off" autocapitalize="off" rows="4" class="w-full glass glass-border prompt-box rounded-xl p-4 text-base placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[var(--blue-electric)]" placeholder="Write or Say your vision...!"></textarea>
         <div id="micBtn" class="mic-btn" title="Record">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -528,8 +315,6 @@
             <line x1="8" y1="23" x2="16" y2="23"></line>
           </svg>
         </div>
-        <!-- send button (hidden by default; ظاهر می‌شود وقتی کیبورد موبایل بالا آمد) -->
-        <div id="sendBtn" class="send-btn hidden" title="Send">☬</div>
       </div>
       <button id="generateBtn" class="w-full sm:w-auto flex items-center justify-center gap-2 h-auto sm:h-full px-6 py-3 font-semibold generate-btn transition-all shadow-lg disabled:opacity-50 disabled:cursor-wait relative" style="border-bottom-left-radius: 60% 40px; border-bottom-right-radius: 60% 40px;">
           <span class="animated-text">☬</span>
@@ -537,19 +322,13 @@
       </button>
     </div>
     
-    <!-- Footer Text (کوچک‌تر) -->
     <div class="text-center py-4 mt-4 border-t border-gray-800">
-      <a href="https://t.me/shervini" target="_blank" rel="noopener" class="footer-gradient font-semibold">
+      <a href="https://t.me/shervinuri" target="_blank" rel="noopener" class="footer-gradient font-semibold">
         ••• ᴇxᴄʟᴜsɪᴠᴇ ☬SHΞN™ ᴍᴀᴅᴇ •••
       </a>
     </div>
   </div>
 </div>
-
-<!-- START: New footer added by AI Assistant -->
-<footer id="site-footer">Exclusive SHΞN made</footer>
-<!-- END: New footer added by AI Assistant -->
-
 
 <!-- Slideshow Overlay -->
 <div id="slideshowOverlay" class="slideshow-overlay">
@@ -667,7 +446,7 @@
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.2/dist/gsap.min.js"></script>
 
 <script>
-// --- 3D Background Initialization (بدون تغییر خاص) ---
+// --- 3D Background Initialization ---
 try {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -709,7 +488,6 @@ try {
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    // --- START: Upgraded Bot Logic ---
     const baseUrl = 'https://image.pollinations.ai';
 
     const styleTemplates = {
@@ -772,7 +550,6 @@ document.addEventListener('DOMContentLoaded', () => {
         seedInput: document.getElementById('seed'),
         randomSeedCheckbox: document.getElementById('randomSeed'),
         micBtn: document.getElementById('micBtn'),
-        sendBtn: document.getElementById('sendBtn'),
         ageModal: document.getElementById('ageModal'),
         ageConfirm: document.getElementById('ageConfirm'),
         ageCancel: document.getElementById('ageCancel'),
@@ -819,14 +596,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const card = document.createElement('div');
         card.className = 'image-card relative glass glass-border rounded-lg aspect-square flex items-center justify-center';
+        // START: تغییر کد برای استفاده از انیمیشن جدید
         card.innerHTML = `<div class="flex flex-col items-center gap-4 text-gray-400">
-                          <img src="https://raw.githubusercontent.com/Shervinuri/Shervinuri.github.io/refs/heads/main/1712259501956.png" alt="Loading..." class="w-16 h-16 rounded-full logo-spin">
+                          <img src="https://raw.githubusercontent.com/Shervinuri/Shervinuri.github.io/refs/heads/main/1712259501956.png" alt="Loading..." class="w-16 h-16 rounded-full card-loading-icon">
                           <span class="text-sm font-semibold tracking-wider" id="loading-text-card">Initializing...</span>
                           </div>`;
-        dom.imagesContainer.appendChild(card); // Changed from insertBefore to appendChild to work with column-reverse correctly
-        
-        // Dispatch custom event for the new scroll logic
-        window.dispatchEvent(new CustomEvent('generation:update', { detail: { node: card } }));
+        // END: تغییر کد
+        dom.imagesContainer.appendChild(card);
+        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
         try {
             let promptForProcessing = rawPrompt;
@@ -844,7 +621,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             card.querySelector('#loading-text-card').textContent = 'Finalizing request...';
-            console.log("Final Prompt Sent to Image API:", finalPrompt);
 
             const model = encodeURIComponent(dom.modelSelect.value || 'flux');
             const width = Math.max(512, Math.min(2048, parseInt(dom.widthInput.value) || 1024));
@@ -881,10 +657,10 @@ document.addEventListener('DOMContentLoaded', () => {
         modalToShow.classList.remove('hidden');
         modalToShow.classList.add('flex');
       } else {
-        dom.styleModal.classList.add('hidden');
-        dom.settingsModal.classList.add('hidden');
-        dom.ageModal.classList.add('hidden');
-        [dom.styleModal, dom.settingsModal, dom.ageModal].forEach(m => m.classList.remove('flex'));
+        [dom.styleModal, dom.settingsModal, dom.ageModal].forEach(m => {
+          m.classList.add('hidden');
+          m.classList.remove('flex');
+        });
       }
     };
 
@@ -957,16 +733,11 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const previewCanvas = document.createElement('canvas');
             const previewCtx = previewCanvas.getContext('2d');
-            const maxPreviewSize = Math.min(window.innerWidth * 0.9, 512); // کیفیت پریویو افزایش یافت
+            const maxPreviewSize = Math.min(window.innerWidth * 0.9, 512);
             const aspectRatio = canvas.width / canvas.height;
             
-            if (aspectRatio > 1) {
-                previewCanvas.width = maxPreviewSize;
-                previewCanvas.height = Math.round(maxPreviewSize / aspectRatio);
-            } else {
-                previewCanvas.width = Math.round(maxPreviewSize * aspectRatio);
-                previewCanvas.height = maxPreviewSize;
-            }
+            previewCanvas.width = aspectRatio > 1 ? maxPreviewSize : Math.round(maxPreviewSize * aspectRatio);
+            previewCanvas.height = aspectRatio > 1 ? Math.round(maxPreviewSize / aspectRatio) : maxPreviewSize;
             
             previewCtx.drawImage(canvas, 0, 0, previewCanvas.width, previewCanvas.height);
             previewCanvas.className = 'w-full h-full object-cover rounded-lg cursor-pointer';
@@ -1005,7 +776,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Slideshow functions (unchanged)
     function openSlideshow(index) {
         if (appState.generatedImages.length === 0) return;
         appState.currentSlideIndex = index;
@@ -1096,11 +866,7 @@ document.addEventListener('DOMContentLoaded', () => {
             allItems.forEach(item => {
                 const itemTop = item.offsetTop;
                 const itemCenter = itemTop + (itemHeight / 2);
-                if (Math.abs(itemCenter - centerLine) < itemHeight / 2) {
-                    item.classList.add('is-active');
-                } else {
-                    item.classList.remove('is-active');
-                }
+                item.classList.toggle('is-active', Math.abs(itemCenter - centerLine) < itemHeight / 2);
             });
             scrollTimeout = setTimeout(() => {
                 const finalScrollTop = roller.scrollTop;
@@ -1149,13 +915,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Event Listeners
     dom.generateBtn.addEventListener('click', generateImage);
 
-    // KEY BINDING: Enter inserts newline. Ctrl/Cmd+Enter sends.
     dom.promptInput.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
             e.preventDefault();
             generateImage();
         }
-        // otherwise let Enter behave normally (newline)
     });
 
     dom.styleBtn.addEventListener('click', () => {
@@ -1194,7 +958,6 @@ document.addEventListener('DOMContentLoaded', () => {
         dom.seedInput.disabled = e.target.checked;
     });
 
-    // Slideshow Event Listeners
     dom.closeSlideshow.addEventListener('click', closeSlideshow);
     dom.prevBtn.addEventListener('click', prevSlide);
     dom.nextBtn.addEventListener('click', nextSlide);
@@ -1217,7 +980,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Keyboard navigation for slideshow
     document.addEventListener('keydown', (e) => {
         if (dom.slideshowOverlay.classList.contains('active')) {
             if (e.key === 'ArrowLeft') { e.preventDefault(); prevSlide(); }
@@ -1245,7 +1007,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     
     
-    // Preset size handling
     const presetSize = document.getElementById('presetSize');
     if (presetSize){
       presetSize.addEventListener('change', (e)=>{
@@ -1274,193 +1035,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- App Initialization ---
     loadSettings();
     previousModelValue = dom.modelSelect.value;
-
-    // موبایل: مدیریت کیبورد — فقط فوتر/پلیس هولدر را بالا می‌بریم و دکمهٔ ارسال را نمایش می‌دهیم
-    
-
-(function setupViewportKeyboardHandling(){
-  const promptBox = document.getElementById('prompt');
-  const micBtn = document.getElementById('micBtn');
-  const sendBtn = dom.sendBtn;
-
-  // Create a container to move them together
-  const container = document.createElement('div');
-  container.style.position = 'relative';
-  container.style.display = 'inline-flex';
-  container.style.alignItems = 'center';
-  container.style.justifyContent = 'center';
-  container.style.width = '100%';
-
-  // insert before promptBox and move children
-  promptBox.parentNode.insertBefore(container, promptBox);
-  container.appendChild(promptBox);
-  container.appendChild(micBtn);
-  container.appendChild(sendBtn);
-
-  const original = {
-    position: container.style.position,
-    bottom: container.style.bottom,
-    left: container.style.left,
-    width: container.style.width,
-    zIndex: container.style.zIndex,
-    transform: container.style.transform
-  };
-
-  function onViewportChange(){
-    const vv = window.visualViewport;
-    if (!vv) return;
-    const vhDiff = window.innerHeight - vv.height;
-
-    if (vhDiff > 100){
-      container.style.position = 'fixed';
-      container.style.bottom = (vhDiff + 10) + 'px';
-      container.style.left = '50%';
-      container.style.transform = 'translateX(-50%)';
-      container.style.width = '95%';
-      container.style.zIndex = '9999';
-    } else {
-      container.style.position = original.position;
-      container.style.bottom = original.bottom;
-      container.style.left = original.left;
-      container.style.width = original.width;
-      container.style.zIndex = original.zIndex;
-      container.style.transform = original.transform;
-    }
-  }
-
-  if (window.visualViewport){
-    window.visualViewport.addEventListener('resize', onViewportChange);
-    window.visualViewport.addEventListener('scroll', onViewportChange);
-  }
-
-  promptBox.addEventListener('focus', onViewportChange);
-  promptBox.addEventListener('blur', ()=>{ onViewportChange(); });
-})();
-
 });
 </script>
-
-<!-- START: New script added by shen Assistant -->
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-  try {
-    // --- 1. Footer Gradient Sync ---
-    const initFooterGradient = () => {
-      try {
-        // Selector for the element whose gradient we want to copy
-        const titleElement = document.querySelector('[data-title-gradient] .animated-text');
-        const footerElement = document.getElementById('site-footer');
-        if (!titleElement || !footerElement) return;
-
-        const computedStyle = window.getComputedStyle(titleElement);
-        const titleGradient = computedStyle.backgroundImage;
-
-        // Check if it's a valid gradient and not 'none' or empty
-        if (titleGradient && titleGradient.includes('gradient')) {
-          // Use a CSS variable to apply the gradient for easy management
-          document.documentElement.style.setProperty('--title-gradient', titleGradient);
-        }
-      } catch (e) {
-        console.error('Could not sync footer gradient:', e);
-        // Fallback is already defined in CSS, so no action needed here
-      }
-    };
-    initFooterGradient();
-
-
-    // --- 2. Loading Indicator Logic ---
-    const showLoading = () => document.body.classList.add('is-generating');
-    const hideLoading = () => document.body.classList.remove('is-generating');
-
-    // Listen for custom events if the app dispatches them
-    window.addEventListener('generation:start', showLoading);
-    window.addEventListener('generation:finish', hideLoading);
-    
-    // Create a proxy to hook into the existing app without modifying its code
-    const generateBtn = document.getElementById('generateBtn');
-    if (generateBtn) {
-        // This listener acts as a proxy to detect the start of generation
-        generateBtn.addEventListener('click', () => {
-           const promptInput = document.getElementById('prompt');
-           if (promptInput && promptInput.value.trim()){
-              // If the button is clicked and there's a prompt, we assume generation will start
-              window.dispatchEvent(new Event('generation:start'));
-           }
-        });
-
-        // Use a MutationObserver to detect when generation is finished
-        // This is a robust way to react to the button being re-enabled
-        const finishObserver = new MutationObserver((mutationsList) => {
-            for(const mutation of mutationsList) {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'disabled') {
-                    const btn = mutation.target;
-                    // When 'disabled' attribute is removed, generation is complete
-                    if (!btn.disabled) {
-                        window.dispatchEvent(new Event('generation:finish'));
-                    }
-                }
-            }
-        });
-        finishObserver.observe(generateBtn, { attributes: true });
-    }
-
-
-    // --- 3. Auto-Scroll to New Item ---
-    const placeAndReveal = (node) => {
-      if (!node || typeof node.scrollIntoView !== 'function') return;
-      try {
-        // Scrolls the new element into the center of the viewport smoothly
-        node.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } catch (e) {
-        console.error('Failed to scroll to element:', e);
-      }
-    };
-
-    // Listen for a custom event for explicit programmatic control
-    window.addEventListener('generation:update', (e) => {
-      if (e.detail && e.detail.node) {
-        placeAndReveal(e.detail.node);
-      }
-    });
-
-    // Use MutationObserver as a fallback for apps that don't dispatch the custom 'generation:update' event
-    const initMutationObserver = () => {
-      try {
-        const container = document.querySelector('[data-generated-list]');
-        if (!container) return;
-
-        const observer = new MutationObserver((mutationsList) => {
-          for (const mutation of mutationsList) {
-            if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-              const lastAddedItem = Array.from(mutation.addedNodes).find(node => 
-                node.nodeType === 1 && node.classList.contains('image-card')
-              );
-              
-              if (lastAddedItem) {
-                // We don't call placeAndReveal here because the original script already
-                // dispatches 'generation:update' now, which is the preferred method.
-                // This observer remains as a potential fallback.
-              }
-            }
-          }
-        });
-
-        observer.observe(container, { childList: true });
-      } catch (e) {
-        console.error('Could not initialize MutationObserver:', e);
-      }
-    };
-    initMutationObserver();
-
-  } catch (err) {
-    console.error("An error occurred in the new features script:", err);
-  }
-});
-</script>
-<!-- END: New script added by Shen core -->
 
 </body>
 </html>
+
+
