@@ -506,21 +506,18 @@ document.addEventListener('DOMContentLoaded', () => {
     YOUR TASK: transform the user's short prompt into an expanded, technical prompt.
     `;
 
-    async function enhancePromptWithAI(userPrompt) {
-        // This function now uses the Gemini API for more reliable prompt enhancement.
+    async function enhancePromptWithGemini(userPrompt) {
+        const apiKey = ""; // Canvas will provide the key
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+        
+        const payload = {
+            contents: [{ parts: [{ text: `Enhance this prompt: \"${userPrompt}\"` }] }],
+            systemInstruction: {
+                parts: [{ text: SYSTEM_PROMPT }]
+            },
+        };
+
         try {
-            const apiKey = ""; // The environment will handle the API key.
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-
-            const payload = {
-                contents: [{
-                    parts: [{ text: `Enhance this prompt for a text-to-image model: \"${userPrompt}\"` }]
-                }],
-                systemInstruction: {
-                    parts: [{ text: SYSTEM_PROMPT }]
-                },
-            };
-
             const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -528,7 +525,8 @@ document.addEventListener('DOMContentLoaded', () => {
             });
 
             if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+                const errorBody = await response.text();
+                throw new Error(`HTTP error! status: ${response.status}, body: ${errorBody}`);
             }
 
             const result = await response.json();
@@ -537,15 +535,14 @@ document.addEventListener('DOMContentLoaded', () => {
             if (candidate && candidate.content?.parts?.[0]?.text) {
                 return candidate.content.parts[0].text.trim();
             } else {
-                console.error('Invalid response structure from Gemini API:', result);
-                return userPrompt; // Fallback to the original prompt
+                console.warn("Gemini response was empty or malformed.", result);
+                return userPrompt; // Fallback
             }
         } catch (error) {
-            console.error('Error enhancing prompt with Gemini AI:', error);
-            return userPrompt; // Fallback to the original prompt on error
+            console.error('Error enhancing prompt with Gemini:', error);
+            return userPrompt; // Fallback
         }
     }
-
 
     const dom = {
         promptInput: document.getElementById('prompt'),
@@ -631,7 +628,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (dom.enhanceCheckbox.checked) {
                 card.querySelector('#loading-text-card').textContent = 'SHΞN™core is tunning prompt...';
-                finalPrompt = await enhancePromptWithAI(promptForProcessing);
+                finalPrompt = await enhancePromptWithGemini(promptForProcessing);
             } else {
                 finalPrompt = promptForProcessing;
             }
@@ -1058,3 +1055,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
 </body>
 </html>
+
