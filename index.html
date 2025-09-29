@@ -447,8 +447,28 @@
     60% { opacity: 1; }
     85% { opacity: 0.98; }
   }
+
+<style>
+  #site-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 19; /* A layer below the prompt box */
+  }
+
+  /* Adjust the prompt box container to sit on top of the new footer */
+  .fixed-footer {
+    /* We move it up by the height of the new footer */
+    bottom: var(--footer-height, 48px);
+  }
+
+  /* Adjust main content padding to prevent the last image from being hidden */
+  .main-content {
+    /* Original padding was 220px, now we add the new footer's height */
+    padding-bottom: calc(220px + var(--footer-height, 48px));
+  }
 </style>
-<!-- END: New styles added by AI Assistant -->
 
 </head>
 <body style="background-attachment:fixed; overflow-y:hidden;" class="text-gray-300 font-['Inter'] antialiased relative overflow-x-hidden">
