@@ -2,25 +2,26 @@
 // It receives requests from your frontend and forwards them to the target API
 // using server-side proxies to avoid rate limiting.
 
-// Use node-fetch for making requests in a Node.js environment (Netlify Functions)
 const fetch = require('node-fetch');
 
-// List of reliable, server-grade proxies.
+// لیست پروکسی‌های عمومی و رایگان.
+// کد به صورت خودکار بین این آدرس‌ها می‌چرخد.
 const PROXIES = [
     'https://proxy.cors.sh/',
-    // You can add other reliable server-side proxies here in the future.
+    'https://corsproxy.io/?', // <-- پروکسی جدید و رایگان
+    // در صورت پیدا کردن پروکسی‌های معتبر دیگر، می‌توانید به این لیست اضافه کنید
 ];
 
-let proxyIndex = 0; // Index to rotate through the proxies
+let proxyIndex = 0; // این متغیر برای چرخیدن بین پروکسی‌ها استفاده می‌شود
 
 exports.handler = async (event, context) => {
-    // 1. Only allow POST requests
+    // 1. فقط درخواست‌های POST مجاز هستند
     if (event.httpMethod !== 'POST') {
         return { statusCode: 405, body: 'Method Not Allowed' };
     }
 
     try {
-        // 2. Get the user's prompt from the request body sent by your frontend
+        // 2. دریافت تاریخچه چت از بدنه‌ی درخواست
         const { chatHistory } = JSON.parse(event.body);
 
         if (!chatHistory) {
@@ -29,22 +30,29 @@ exports.handler = async (event, context) => {
 
         const targetApiUrl = 'https://text.pollinations.ai/openai';
 
-        // 3. THE TRICK: Rotate the proxy for each function invocation
+        // 3. انتخاب یک پروکسی متفاوت برای هر درخواست
         const proxyUrl = PROXIES[proxyIndex];
-        proxyIndex = (proxyIndex + 1) % PROXIES.length; // Move to the next proxy for the next request
+        // رفتن به پروکسی بعدی در لیست برای درخواست بعدی
+        proxyIndex = (proxyIndex + 1) % PROXIES.length;
 
         const proxiedUrl = `${proxyUrl}${targetApiUrl}`;
 
-        console.log(`Forwarding request via server-side proxy: ${proxyUrl}`);
+        console.log(`درخواست از طریق پروکسی سرور ارسال شد: ${proxyUrl}`);
 
-        // 4. Make the fetch request from the server-side function through the proxy
+        // 4. ساخت هدرهای درخواست به صورت هوشمند
+        const headers = {
+            'Content-Type': 'application/json',
+        };
+
+        // اگر پروکسی cors.sh بود، هدر مخصوص آن را اضافه کن
+        if (proxyUrl.includes('cors.sh')) {
+            headers['x-cors-api-key'] = 'temp_1234567890';
+        }
+
+        // 5. ارسال درخواست fetch از طریق پروکسی انتخاب شده با هدرهای مناسب
         const response = await fetch(proxiedUrl, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                // This specific header is often required by cors.sh proxy
-                'x-cors-api-key': 'temp_1234567890',
-            },
+            headers: headers, // <-- استفاده از هدرهای داینامیک
             body: JSON.stringify({
                 model: 'openai',
                 messages: chatHistory
@@ -58,21 +66,21 @@ exports.handler = async (event, context) => {
 
         const data = await response.json();
 
-        // 5. Return the successful response to the frontend
+        // 6. ارسال پاسخ موفقیت‌آمیز به فرانت‌اند
         return {
             statusCode: 200,
             headers: {
-                'Access-Control-Allow-Origin': '*', // Allow your frontend to call this function
+                'Access-Control-Allow-Origin': '*',
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify(data),
         };
 
     } catch (error) {
-        console.error('Error in Netlify function:', error.message);
+        console.error('خطا در تابع نتلیفای:', error.message);
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: 'Failed to enhance prompt.' }),
+            body: JSON.stringify({ error: 'Failed to process request.' }),
         };
     }
 };
